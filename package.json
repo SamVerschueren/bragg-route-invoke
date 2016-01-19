@@ -1,0 +1,40 @@
+{
+  "name": "bragg-route-invoke",
+  "version": "0.0.0",
+  "description": "Invoke bragg routes in a lambda function",
+  "license": "MIT",
+  "repository": "SamVerschueren/bragg-route-invoke",
+  "author": {
+    "name": "Sam Verschueren",
+    "email": "sam.verschueren@gmail.com",
+    "url": "github.com/SamVerschueren"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "bragg",
+    "route",
+    "router",
+    "invoke",
+    "aws",
+    "lambda"
+  ],
+  "dependencies": {
+    "aws-lambda-invoke": "^2.1.0",
+    "pinkie-promise": "^2.0.0"
+  },
+  "devDependencies": {
+    "ava": "*",
+    "aws-sdk": "^2.2.30",
+    "sinon": "^1.17.2",
+    "sinon-as-promised": "^4.0.0",
+    "xo": "*"
+  }
+}
