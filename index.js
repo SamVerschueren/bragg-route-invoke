@@ -25,6 +25,8 @@ methods.forEach(function (method) {
 		opts['resource-path'] = path;
 		opts['http-method'] = method;
 
-		return lambda.invoke(fn, opts);
+		return lambda.invoke(fn, opts).catch(function (err) {
+			throw new Error(method.toUpperCase() + ' ' + fn + '::' + path + ' ⇾ ' + err.message);
+		});
 	};
 });

@@ -5,7 +5,9 @@ import lambda from 'aws-lambda-invoke';
 import m from './';
 
 test.before(() => {
-	sinon.stub(lambda, 'invoke').resolves({foo: 'bar'});
+	const stub = sinon.stub(lambda, 'invoke');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', 'body': {foo: 'bar'}}).rejects('400 - Bad Request');
+	stub.resolves({foo: 'bar'});
 });
 
 test.after(() => {
@@ -50,4 +52,8 @@ test.serial('invoke with params', async t => {
 			foo: 'bar'
 		}
 	});
+});
+
+test.serial('error', async t => {
+	t.throws(m.post('foo', 'bar', {body: {foo: 'bar'}}), 'POST foo::bar ⇾ 400 - Bad Request');
 });
