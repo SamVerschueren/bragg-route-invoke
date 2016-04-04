@@ -22,6 +22,10 @@ invoke.get('myFunction', '/foo/{bar}', {params: {bar: 'bar'}}).then(result => {
 invoke.post('myFunction', '/foo', {body: {foo: 'bar'}}).then(() => {
 	// resource created
 });
+
+invoke.postAsync('myFunction', '/foo', {body: {foo: 'bar'}}).then(() => {
+	// don't wait for the target function to be executed
+});
 ```
 
 
@@ -31,11 +35,19 @@ invoke.post('myFunction', '/foo', {body: {foo: 'bar'}}).then(() => {
 
 ### invoke.put(fn, path, [options])
 
+### invoke.putAsync(fn, path, [options])
+
 ### invoke.patch(fn, path, [options])
+
+### invoke.patchAsync(fn, path, [options])
 
 ### invoke.post(fn, path, [options])
 
+### invoke.postAsync(fn, path, [options])
+
 ### invoke.delete(fn, path, [options])
+
+### invoke.deleteAsync(fn, path, [options])
 
 #### fn
 

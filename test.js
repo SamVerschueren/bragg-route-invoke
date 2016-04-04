@@ -8,18 +8,22 @@ test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
 	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', 'body': {foo: 'bar'}}).rejects('400 - Bad Request');
 	stub.resolves({foo: 'bar'});
+
+	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
+	invokeAsync.resolves({foo: 'baz'});
 });
 
-test.after(() => {
-	lambda.invoke.restore();
-});
-
-test('methods exists', t => {
+test('methods', t => {
 	t.ok(m.get);
+	t.notOk(m.getAsync);
 	t.ok(m.put);
+	t.ok(m.putAsync);
 	t.ok(m.patch);
+	t.ok(m.patchAsync);
 	t.ok(m.post);
+	t.ok(m.postAsync);
 	t.ok(m.delete);
+	t.ok(m.deleteAsync);
 });
 
 test('error', t => {
@@ -47,6 +51,19 @@ test.serial('invoke with params', async t => {
 	t.is(lambda.invoke.lastCall.args[0], 'foo');
 	t.same(lambda.invoke.lastCall.args[1], {
 		'resource-path': '/foo',
+		'http-method': 'post',
+		'body': {
+			foo: 'bar'
+		}
+	});
+});
+
+test('invoke async', async t => {
+	await m.postAsync('hello', '/world', {body: {foo: 'bar'}});
+
+	t.is(lambda.invokeAsync.lastCall.args[0], 'hello');
+	t.same(lambda.invokeAsync.lastCall.args[1], {
+		'resource-path': '/world',
 		'http-method': 'post',
 		'body': {
 			foo: 'bar'

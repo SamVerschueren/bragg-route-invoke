@@ -28,6 +28,7 @@
   ],
   "dependencies": {
     "aws-lambda-invoke": "^2.1.0",
+    "object-assign": "^4.0.1",
     "pinkie-promise": "^2.0.0"
   },
   "devDependencies": {
