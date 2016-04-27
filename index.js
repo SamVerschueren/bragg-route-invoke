@@ -1,8 +1,6 @@
 'use strict';
-var lambda = require('aws-lambda-invoke');
-var objectAssign = require('object-assign');
-var Promise = require('pinkie-promise');
-var methods = {
+const lambda = require('aws-lambda-invoke');
+const methods = {
 	get: false,
 	put: true,
 	patch: true,
@@ -19,20 +17,20 @@ function invoke(method, async, fn, path, opts) {
 		return Promise.reject(new TypeError('Expected a resource path'));
 	}
 
-	var options = objectAssign({
+	const options = Object.assign({
 		'resource-path': path,
 		'http-method': method
 	}, opts);
 
-	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(function (err) {
-		throw new Error(method.toUpperCase() + ' ' + fn + '::' + path + ' ⇾ ' + err.message);
+	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(err => {
+		throw new Error(`${method.toUpperCase()} ${fn}::${path} ⇾ ${err.message}`);
 	});
 }
 
-Object.keys(methods).forEach(function (method) {
+Object.keys(methods).forEach(method => {
 	module.exports[method] = invoke.bind(undefined, method, false);
 
 	if (methods[method] === true) {
-		module.exports[method + 'Async'] = invoke.bind(undefined, method, true);
+		module.exports[`${method}Async`] = invoke.bind(undefined, method, true);
 	}
 });
