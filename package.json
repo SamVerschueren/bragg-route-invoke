@@ -1,6 +1,6 @@
 {
   "name": "bragg-route-invoke",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Invoke bragg routes in a lambda function",
   "license": "MIT",
   "repository": "SamVerschueren/bragg-route-invoke",
