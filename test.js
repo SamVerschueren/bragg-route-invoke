@@ -7,6 +7,7 @@ import m from './';
 test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
 	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', 'body': {foo: 'bar'}}).rejects('400 - Bad Request');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', 'body': {foo: 'baz'}}).rejects('Something went wrong');
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -31,7 +32,7 @@ test('error', t => {
 	t.throws(m.get('foo'), 'Expected a resource path');
 });
 
-test.serial('result', async t => {
+test('result', async t => {
 	t.deepEqual(await m.get('foo', '/foo'), {foo: 'bar'});
 });
 
@@ -58,7 +59,7 @@ test.serial('invoke with params', async t => {
 	});
 });
 
-test('invoke async', async t => {
+test.serial('invoke async', async t => {
 	await m.postAsync('hello', '/world', {body: {foo: 'bar'}});
 
 	t.is(lambda.invokeAsync.lastCall.args[0], 'hello');
@@ -71,6 +72,27 @@ test('invoke async', async t => {
 	});
 });
 
-test.serial('remote error', t => {
-	t.throws(m.post('foo', 'bar', {body: {foo: 'bar'}}), 'POST foo::bar ⇾ 400 - Bad Request');
+test('remote error', async t => {
+	try {
+		await m.post('foo', 'bar', {body: {foo: 'bar'}});
+		t.fail('Expected to throw an error');
+	} catch (err) {
+		t.is(err.message, 'Bad Request');
+		t.is(err.status, 400);
+		t.is(err.httpMethod, 'POST');
+		t.is(err.function, 'foo');
+		t.is(err.path, 'bar');
+	}
+});
+
+test('remote error without status code', async t => {
+	try {
+		await m.post('foo', 'baz', {body: {foo: 'baz'}});
+		t.fail('Expected to throw an error');
+	} catch (err) {
+		t.is(err.message, 'Something went wrong');
+		t.is(err.httpMethod, 'POST');
+		t.is(err.function, 'foo');
+		t.is(err.path, 'baz');
+	}
 });

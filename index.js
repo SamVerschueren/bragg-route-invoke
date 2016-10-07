@@ -1,5 +1,6 @@
 'use strict';
 const lambda = require('aws-lambda-invoke');
+
 const methods = {
 	get: false,
 	put: true,
@@ -7,6 +8,25 @@ const methods = {
 	post: true,
 	delete: true
 };
+
+function parseError(err) {
+	if (!err && !err.message) {
+		return err;
+	}
+
+	const split = err.message.split(' - ');
+	const status = split[0];
+	const message = split[1];
+
+	if (isNaN(status)) {
+		return err;
+	}
+
+	const error = new Error(message);
+	error.status = parseInt(status, 10);
+
+	return error;
+}
 
 function invoke(method, async, fn, path, opts) {
 	if (typeof fn !== 'string') {
@@ -23,7 +43,12 @@ function invoke(method, async, fn, path, opts) {
 	}, opts);
 
 	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(err => {
-		throw new Error(`${method.toUpperCase()} ${fn}::${path} ⇾ ${err.message}`);
+		const error = parseError(err);
+		error.httpMethod = method.toUpperCase();
+		error.function = fn;
+		error.path = path;
+
+		throw error;
 	});
 }
 
