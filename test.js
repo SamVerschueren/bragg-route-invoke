@@ -1,13 +1,13 @@
 import test from 'ava';
 import sinon from 'sinon';
-import 'sinon-as-promised';
+import 'sinon-as-promised';					// eslint-disable-line import/no-unassigned-import
 import lambda from 'aws-lambda-invoke';
 import m from './';
 
 test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', 'body': {foo: 'bar'}}).rejects('400 - Bad Request');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', 'body': {foo: 'baz'}}).rejects('Something went wrong');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', body: {foo: 'bar'}}).rejects('400 - Bad Request');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', body: {foo: 'baz'}}).rejects('Something went wrong');
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -27,9 +27,9 @@ test('methods', t => {
 	t.truthy(m.deleteAsync);
 });
 
-test('error', t => {
-	t.throws(m.get(), 'Expected a function name');
-	t.throws(m.get('foo'), 'Expected a resource path');
+test('error', async t => {
+	await t.throws(m.get(), 'Expected a function name');
+	await t.throws(m.get('foo'), 'Expected a resource path');
 });
 
 test('result', async t => {
@@ -53,7 +53,7 @@ test.serial('invoke with params', async t => {
 	t.deepEqual(lambda.invoke.lastCall.args[1], {
 		'resource-path': '/foo',
 		'http-method': 'post',
-		'body': {
+		body: {
 			foo: 'bar'
 		}
 	});
@@ -66,7 +66,7 @@ test.serial('invoke async', async t => {
 	t.deepEqual(lambda.invokeAsync.lastCall.args[1], {
 		'resource-path': '/world',
 		'http-method': 'post',
-		'body': {
+		body: {
 			foo: 'bar'
 		}
 	});

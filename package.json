@@ -27,7 +27,7 @@
     "lambda"
   ],
   "dependencies": {
-    "aws-lambda-invoke": "^2.1.0"
+    "aws-lambda-invoke": "^3.0.0"
   },
   "devDependencies": {
     "ava": "*",
@@ -35,8 +35,5 @@
     "sinon": "^1.17.2",
     "sinon-as-promised": "^4.0.0",
     "xo": "*"
-  },
-  "xo": {
-    "esnext": true
   }
 }
