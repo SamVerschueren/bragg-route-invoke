@@ -28,7 +28,21 @@ function parseError(err) {
 	return error;
 }
 
-function invoke(method, async, fn, path, opts) {
+function parseBody(result) {
+	if (result.headers && result.headers['Content-Type'] === 'application/json') {
+		try {
+			result.body = JSON.parse(result.body);
+		} catch (err) {
+			// Do nothing
+		}
+	}
+
+	return result;
+}
+
+function invoke(httpMethod, async, fn, path, opts) {
+	opts = opts || {};
+
 	if (typeof fn !== 'string') {
 		return Promise.reject(new TypeError('Expected a function name'));
 	}
@@ -37,19 +51,42 @@ function invoke(method, async, fn, path, opts) {
 		return Promise.reject(new TypeError('Expected a resource path'));
 	}
 
+	const queryStringParameters = opts.query;
+	const identity = opts.identity;
+	const requestContext = Object.assign({}, opts.requestContext, {identity});
+	delete opts.query;
+	delete opts.identity;
+	delete opts.requestContext;
+
 	const options = Object.assign({
-		'resource-path': path,
-		'http-method': method
+		path,
+		httpMethod,
+		queryStringParameters,
+		requestContext
 	}, opts);
 
-	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(err => {
-		const error = parseError(err);
-		error.httpMethod = method.toUpperCase();
-		error.function = fn;
-		error.path = path;
+	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options)
+		.then(result => {
+			if (result.statusCode >= 400) {
+				const error = new Error(result.body);
+				error.status = result.statusCode;
+				error.httpMethod = httpMethod.toUpperCase();
+				error.function = fn;
+				error.path = path;
 
-		throw error;
-	});
+				throw error;
+			}
+
+			return parseBody(result);
+		})
+		.catch(err => {
+			const error = parseError(err);
+			error.httpMethod = httpMethod.toUpperCase();
+			error.function = fn;
+			error.path = path;
+
+			throw error;
+		});
 }
 
 Object.keys(methods).forEach(method => {

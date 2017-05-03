@@ -6,8 +6,8 @@ import m from './';
 
 test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', body: {foo: 'bar'}}).rejects('400 - Bad Request');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', body: {foo: 'baz'}}).rejects('Something went wrong');
+	stub.withArgs('foo', {httpMethod: 'post', path: 'bar', body: {foo: 'bar'}, queryStringParameters: sinon.match.any, requestContext: sinon.match.any}).rejects('400 - Bad Request');
+	stub.withArgs('foo', {httpMethod: 'post', path: 'baz', body: {foo: 'baz'}, queryStringParameters: sinon.match.any, requestContext: sinon.match.any}).rejects('Something went wrong');
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -41,8 +41,12 @@ test.serial('invoke no params', async t => {
 
 	t.is(lambda.invoke.lastCall.args[0], 'foo');
 	t.deepEqual(lambda.invoke.lastCall.args[1], {
-		'resource-path': '/foo',
-		'http-method': 'get'
+		path: '/foo',
+		httpMethod: 'get',
+		queryStringParameters: undefined,
+		requestContext: {
+			identity: undefined
+		}
 	});
 });
 
@@ -51,10 +55,14 @@ test.serial('invoke with params', async t => {
 
 	t.is(lambda.invoke.lastCall.args[0], 'foo');
 	t.deepEqual(lambda.invoke.lastCall.args[1], {
-		'resource-path': '/foo',
-		'http-method': 'post',
+		path: '/foo',
+		httpMethod: 'post',
+		queryStringParameters: undefined,
 		body: {
 			foo: 'bar'
+		},
+		requestContext: {
+			identity: undefined
 		}
 	});
 });
@@ -64,10 +72,14 @@ test.serial('invoke async', async t => {
 
 	t.is(lambda.invokeAsync.lastCall.args[0], 'hello');
 	t.deepEqual(lambda.invokeAsync.lastCall.args[1], {
-		'resource-path': '/world',
-		'http-method': 'post',
+		path: '/world',
+		httpMethod: 'post',
+		queryStringParameters: undefined,
 		body: {
 			foo: 'bar'
+		},
+		requestContext: {
+			identity: undefined
 		}
 	});
 });
