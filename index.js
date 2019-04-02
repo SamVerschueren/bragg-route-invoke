@@ -32,7 +32,7 @@ function parseBody(result) {
 	if (result.headers && result.headers['Content-Type'] === 'application/json') {
 		try {
 			result.body = JSON.parse(result.body);
-		} catch (err) {
+		} catch (error) {
 			// Do nothing
 		}
 	}
@@ -52,7 +52,7 @@ function invoke(httpMethod, async, fn, path, opts) {
 	}
 
 	const queryStringParameters = opts.query;
-	const identity = opts.identity;
+	const {identity} = opts;
 	const requestContext = Object.assign({}, opts.requestContext, {identity});
 	delete opts.query;
 	delete opts.identity;
@@ -79,13 +79,13 @@ function invoke(httpMethod, async, fn, path, opts) {
 
 			return parseBody(result);
 		})
-		.catch(err => {
-			const error = parseError(err);
-			error.httpMethod = httpMethod.toUpperCase();
-			error.function = fn;
-			error.path = path;
+		.catch(error => {
+			const parsedError = parseError(error);
+			parsedError.httpMethod = httpMethod.toUpperCase();
+			parsedError.function = fn;
+			parsedError.path = path;
 
-			throw error;
+			throw parsedError;
 		});
 }
 
