@@ -8,6 +8,13 @@ test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
 	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', body: {foo: 'bar'}}).rejects('400 - Bad Request');
 	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', body: {foo: 'baz'}}).rejects('Something went wrong');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bragg2/baz', body: {foo: 'baz'}}).resolves({
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		statusCode: 200,
+		body: '{"foo":"baz"}'
+	});
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -95,4 +102,8 @@ test('remote error without status code', async t => {
 		t.is(error.function, 'foo');
 		t.is(error.path, 'baz');
 	}
+});
+
+test.serial('invoke a bragg@^2.0.0 service', async t => {
+	t.deepEqual(await m.post('foo', 'bragg2/baz', {body: {foo: 'baz'}}), {foo: 'baz'});
 });

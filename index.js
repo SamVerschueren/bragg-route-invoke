@@ -42,7 +42,17 @@ function invoke(method, async, fn, path, opts) {
 		'http-method': method
 	}, opts);
 
-	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(error => {
+	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).then(result => {
+		if (result.body && result.headers && result.statusCode) {
+			try {
+				return JSON.parse(result.body);
+			} catch (error) {
+				return result.body;
+			}
+		}
+
+		return result;
+	}).catch(error => {
 		const parsedError = parseError(error);
 		parsedError.httpMethod = method.toUpperCase();
 		parsedError.function = fn;
