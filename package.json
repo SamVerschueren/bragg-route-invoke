@@ -30,7 +30,7 @@
     "aws-lambda-invoke": "^2.1.0"
   },
   "devDependencies": {
-    "ava": "*",
+    "ava": "^0.25.0",
     "aws-sdk": "^2.2.30",
     "sinon": "^1.17.2",
     "sinon-as-promised": "^4.0.0",

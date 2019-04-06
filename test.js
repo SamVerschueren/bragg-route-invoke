@@ -1,13 +1,13 @@
 import test from 'ava';
 import sinon from 'sinon';
-import 'sinon-as-promised';
+import 'sinon-as-promised'; // eslint-disable-line import/no-unassigned-import
 import lambda from 'aws-lambda-invoke';
-import m from './';
+import m from '.';
 
 test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', 'body': {foo: 'bar'}}).rejects('400 - Bad Request');
-	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', 'body': {foo: 'baz'}}).rejects('Something went wrong');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'bar', body: {foo: 'bar'}}).rejects('400 - Bad Request');
+	stub.withArgs('foo', {'http-method': 'post', 'resource-path': 'baz', body: {foo: 'baz'}}).rejects('Something went wrong');
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -27,9 +27,9 @@ test('methods', t => {
 	t.truthy(m.deleteAsync);
 });
 
-test('error', t => {
-	t.throws(m.get(), 'Expected a function name');
-	t.throws(m.get('foo'), 'Expected a resource path');
+test('error', async t => {
+	await t.throws(m.get(), 'Expected a function name');
+	await t.throws(m.get('foo'), 'Expected a resource path');
 });
 
 test('result', async t => {
@@ -53,7 +53,7 @@ test.serial('invoke with params', async t => {
 	t.deepEqual(lambda.invoke.lastCall.args[1], {
 		'resource-path': '/foo',
 		'http-method': 'post',
-		'body': {
+		body: {
 			foo: 'bar'
 		}
 	});
@@ -66,7 +66,7 @@ test.serial('invoke async', async t => {
 	t.deepEqual(lambda.invokeAsync.lastCall.args[1], {
 		'resource-path': '/world',
 		'http-method': 'post',
-		'body': {
+		body: {
 			foo: 'bar'
 		}
 	});
@@ -76,12 +76,12 @@ test('remote error', async t => {
 	try {
 		await m.post('foo', 'bar', {body: {foo: 'bar'}});
 		t.fail('Expected to throw an error');
-	} catch (err) {
-		t.is(err.message, 'Bad Request');
-		t.is(err.status, 400);
-		t.is(err.httpMethod, 'POST');
-		t.is(err.function, 'foo');
-		t.is(err.path, 'bar');
+	} catch (error) {
+		t.is(error.message, 'Bad Request');
+		t.is(error.status, 400);
+		t.is(error.httpMethod, 'POST');
+		t.is(error.function, 'foo');
+		t.is(error.path, 'bar');
 	}
 });
 
@@ -89,10 +89,10 @@ test('remote error without status code', async t => {
 	try {
 		await m.post('foo', 'baz', {body: {foo: 'baz'}});
 		t.fail('Expected to throw an error');
-	} catch (err) {
-		t.is(err.message, 'Something went wrong');
-		t.is(err.httpMethod, 'POST');
-		t.is(err.function, 'foo');
-		t.is(err.path, 'baz');
+	} catch (error) {
+		t.is(error.message, 'Something went wrong');
+		t.is(error.httpMethod, 'POST');
+		t.is(error.function, 'foo');
+		t.is(error.path, 'baz');
 	}
 });

@@ -42,13 +42,13 @@ function invoke(method, async, fn, path, opts) {
 		'http-method': method
 	}, opts);
 
-	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(err => {
-		const error = parseError(err);
-		error.httpMethod = method.toUpperCase();
-		error.function = fn;
-		error.path = path;
+	return lambda[async ? 'invokeAsync' : 'invoke'](fn, options).catch(error => {
+		const parsedError = parseError(error);
+		parsedError.httpMethod = method.toUpperCase();
+		parsedError.function = fn;
+		parsedError.path = path;
 
-		throw error;
+		throw parsedError;
 	});
 }
 
