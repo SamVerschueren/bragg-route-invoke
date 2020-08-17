@@ -32,7 +32,7 @@ function parseBody(result) {
 	if (result.headers && result.headers['Content-Type'] === 'application/json') {
 		try {
 			result.body = JSON.parse(result.body);
-		} catch (err) {
+		} catch (_) {
 			// Do nothing
 		}
 	}
@@ -52,7 +52,7 @@ function invoke(httpMethod, async, fn, path, opts) {
 	}
 
 	const queryStringParameters = opts.query;
-	const identity = opts.identity;
+	const identity = opts.identity; // eslint-disable-line prefer-destructuring
 	const requestContext = Object.assign({}, opts.requestContext, {identity});
 	delete opts.query;
 	delete opts.identity;

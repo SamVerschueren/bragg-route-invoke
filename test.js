@@ -2,7 +2,7 @@ import test from 'ava';
 import sinon from 'sinon';
 import 'sinon-as-promised';					// eslint-disable-line import/no-unassigned-import
 import lambda from 'aws-lambda-invoke';
-import m from './';
+import m from '.';
 
 test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
