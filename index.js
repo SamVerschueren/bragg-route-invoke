@@ -19,11 +19,14 @@ function parseError(err) {
 	const message = split[1];
 
 	if (isNaN(status)) {
+		err.expose = true;
+
 		return err;
 	}
 
 	const error = new Error(message);
 	error.status = parseInt(status, 10);
+	error.expose = true;
 
 	return error;
 }
@@ -73,6 +76,7 @@ function invoke(httpMethod, async, fn, path, opts) {
 				error.httpMethod = httpMethod.toUpperCase();
 				error.function = fn;
 				error.path = path;
+				error.expose = true;
 
 				throw error;
 			}

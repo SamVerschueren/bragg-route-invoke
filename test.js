@@ -8,6 +8,7 @@ test.before(() => {
 	const stub = sinon.stub(lambda, 'invoke');
 	stub.withArgs('foo', {httpMethod: 'post', path: 'bar', body: {foo: 'bar'}, queryStringParameters: sinon.match.any, requestContext: sinon.match.any}).rejects('400 - Bad Request');
 	stub.withArgs('foo', {httpMethod: 'post', path: 'baz', body: {foo: 'baz'}, queryStringParameters: sinon.match.any, requestContext: sinon.match.any}).rejects('Something went wrong');
+	stub.withArgs('foo', {httpMethod: 'post', path: 'unicorn', body: {foo: 'rainbow'}, queryStringParameters: sinon.match.any, requestContext: sinon.match.any}).resolves({statusCode: 404, body: 'Could not find resource'});
 	stub.resolves({foo: 'bar'});
 
 	const invokeAsync = sinon.stub(lambda, 'invokeAsync');
@@ -94,6 +95,21 @@ test('remote error', async t => {
 		t.is(err.httpMethod, 'POST');
 		t.is(err.function, 'foo');
 		t.is(err.path, 'bar');
+		t.is(err.expose, true);
+	}
+});
+
+test('remote lambda resolving in error', async t => {
+	try {
+		await m.post('foo', 'unicorn', {body: {foo: 'rainbow'}});
+		t.fail('Expected to throw an error');
+	} catch (err) {
+		t.is(err.message, 'Could not find resource');
+		t.is(err.status, 404);
+		t.is(err.httpMethod, 'POST');
+		t.is(err.function, 'foo');
+		t.is(err.path, 'unicorn');
+		t.is(err.expose, true);
 	}
 });
 
@@ -106,5 +122,6 @@ test('remote error without status code', async t => {
 		t.is(err.httpMethod, 'POST');
 		t.is(err.function, 'foo');
 		t.is(err.path, 'baz');
+		t.is(err.expose, true);
 	}
 });
